@@ -1,2 +1,5 @@
-# ledboard-firmware-full
-Full version of the firmware for LED Board
+# LED Board - Firmware Full
+
+**/!\ BETA VERSION**
+
+Arduino (PlatformIO + Arduino-Pico) full firmware for LED Board 
