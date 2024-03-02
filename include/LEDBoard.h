@@ -94,8 +94,8 @@ namespace Frangitron {
         }
 
         void loop() {
-            // artnetReceiver.parse();
-            leds->show();
+//            artnetReceiver.parse();
+//            leds->show();
         }
 
         void loop1() {
@@ -174,9 +174,14 @@ namespace Frangitron {
             memcpy(&illumination, illumination1, sizeof(SerialProtocol::IlluminationStruct));
 
             leds->clear();
-            for (int i = illumination.ledStart; i <= illumination.ledEnd; i++) {
-                leds->setPixelColor(i, illumination.r, illumination.g, illumination.b, illumination.w);
+            if(illumination.type == 0) { // Range
+                for (int i = illumination.ledFirst; i <= illumination.ledLast; i++) {
+                    leds->setPixelColor(i, illumination.r, illumination.g, illumination.b, illumination.w);
+                }
+            } else { // Single
+                leds->setPixelColor(illumination.ledSingle, illumination.r, illumination.g, illumination.b, illumination.w);
             }
+            leds->show();
         }
 
     private:
