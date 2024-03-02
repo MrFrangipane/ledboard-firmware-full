@@ -53,8 +53,10 @@ namespace Frangitron {
         };
         
         struct IlluminationStruct {
-            int ledStart = 0;
-            int ledEnd = 0;
+            int type = 0;
+            int ledSingle = 0;
+            int ledFirst = 0;
+            int ledLast = 0;
             int r = 0;
             int g = 0;
             int b = 0;
