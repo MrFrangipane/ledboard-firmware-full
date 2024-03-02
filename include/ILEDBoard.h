@@ -13,9 +13,11 @@ namespace Frangitron {
 
         virtual void displayWrite(uint8_t row, uint8_t column, String text) = 0;
 
+        virtual const void* getIllumination() = 0;
+        virtual void setIllumination(const void* illumination1) = 0;
+
         virtual const void* getSettings() = 0;
         virtual void setSettings(const void* settings1) = 0;
-        virtual void illuminate(const void* illumination1) = 0;
 
         virtual void loadSettings() = 0;
         virtual void saveSettings() = 0;

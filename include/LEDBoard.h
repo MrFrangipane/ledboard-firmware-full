@@ -31,16 +31,22 @@ namespace Frangitron {
         void init() {
             // SERIAL COMMUNICATION
             serialCommunicator.setCallbackParent(this);
+
             serialCommunicator.registerSendCallback(
-                SerialProtocol::DataTypeCode::BoardSettingsCode,
+                SerialProtocol::DataTypeCode::BoardConfigurationStructCode,
                 sendSettings
             );
             serialCommunicator.registerReceiveCallback(
-                    SerialProtocol::DataTypeCode::BoardSettingsCode,
+                    SerialProtocol::DataTypeCode::BoardConfigurationStructCode,
                     receiveSettings
             );
+
+            serialCommunicator.registerSendCallback(
+                    SerialProtocol::DataTypeCode::IlluminationStructCode,
+                    sendIllumination
+            );
             serialCommunicator.registerReceiveCallback(
-                SerialProtocol::DataTypeCode::IlluminationCode,
+                SerialProtocol::DataTypeCode::IlluminationStructCode,
                 receiveIllumination
             );
 
@@ -89,7 +95,7 @@ namespace Frangitron {
 
         void loop() {
             // artnetReceiver.parse();
-            // leds->show();
+            leds->show();
         }
 
         void loop1() {
@@ -160,15 +166,17 @@ namespace Frangitron {
             f.close();
         }
 
-        void illuminate(const void* illumination1) override {
-            SerialProtocol::Illumination illumination;
-            memcpy(&illumination, illumination1, sizeof(SerialProtocol::Illumination));
+        const void* getIllumination() override {
+            return reinterpret_cast<void*>(&illumination);
+        }
+
+        void setIllumination(const void* illumination1) override {
+            memcpy(&illumination, illumination1, sizeof(SerialProtocol::IlluminationStruct));
 
             leds->clear();
             for (int i = illumination.ledStart; i <= illumination.ledEnd; i++) {
                 leds->setPixelColor(i, illumination.r, illumination.g, illumination.b, illumination.w);
             }
-            leds->show();
         }
 
     private:
@@ -178,7 +186,8 @@ namespace Frangitron {
 #else
 
 #endif
-        SerialProtocol::BoardSettings settings;
+        SerialProtocol::BoardConfigurationStruct settings;
+        SerialProtocol::IlluminationStruct illumination;
         ArtnetReceiver artnetReceiver;
         Adafruit_NeoPXL8 *leds = nullptr;
         int fpsCounter[3] = {0, 0, 0};
@@ -216,7 +225,6 @@ namespace Frangitron {
             leds->begin();
             leds->setBrightness(255);
             leds->fill(0x00050000);  // dark red
-            leds->show();
         }
     };
 }

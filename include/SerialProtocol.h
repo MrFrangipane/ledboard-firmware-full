@@ -35,11 +35,11 @@ namespace Frangitron {
         /* //////////////////////////////// */
 
         enum DataTypeCode : int {
-            BoardSettingsCode,
-            IlluminationCode
+            BoardConfigurationStructCode,
+            IlluminationStructCode
         };
 
-        struct BoardSettings {
+        struct BoardConfigurationStruct {
             char name[8] = "       ";
             int hardwareRevision = 1;
             int firmwareRevision = 1;
@@ -52,7 +52,7 @@ namespace Frangitron {
             int doRebootBootloader = 0;
         };
         
-        struct Illumination {
+        struct IlluminationStruct {
             int ledStart = 0;
             int ledEnd = 0;
             int r = 0;
@@ -65,8 +65,8 @@ namespace Frangitron {
     };
 
     const std::map<SerialProtocol::DataTypeCode, uint16_t> SerialProtocol::DataSize = {
-        {SerialProtocol::DataTypeCode::BoardSettingsCode, sizeof(SerialProtocol::BoardSettings)},
-        {SerialProtocol::DataTypeCode::IlluminationCode, sizeof(SerialProtocol::Illumination)}
+        {SerialProtocol::DataTypeCode::BoardConfigurationStructCode, sizeof(SerialProtocol::BoardConfigurationStruct)},
+        {SerialProtocol::DataTypeCode::IlluminationStructCode, sizeof(SerialProtocol::IlluminationStruct)}
     };
 }
 
