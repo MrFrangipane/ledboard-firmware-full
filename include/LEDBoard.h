@@ -94,8 +94,12 @@ namespace Frangitron {
         }
 
         void loop() {
-//            artnetReceiver.parse();
-//            leds->show();
+            if (settings.executionMode == 0) { // Illumination  FIXME: use enums
+            }
+            else { // ArtNet  FIXME: use enums
+                artnetReceiver.parse();
+                leds->show();
+            }
         }
 
         void loop1() {
@@ -171,17 +175,21 @@ namespace Frangitron {
         }
 
         void setIllumination(const void* illumination1) override {
-            memcpy(&illumination, illumination1, sizeof(SerialProtocol::IlluminationStruct));
+            if (settings.executionMode == 0) { // Illumination  FIXME: use enums
+                memcpy(&illumination, illumination1, sizeof(SerialProtocol::IlluminationStruct));
 
-            leds->clear();
-            if(illumination.type == 0) { // Range
-                for (int i = illumination.ledFirst; i <= illumination.ledLast; i++) {
-                    leds->setPixelColor(i, illumination.r, illumination.g, illumination.b, illumination.w);
+                leds->clear();
+                if (illumination.type == 0) { // Range  FIXME: use enums
+                    for (int i = illumination.ledFirst; i <= illumination.ledLast; i++) {
+                        leds->setPixelColor(i, illumination.r, illumination.g, illumination.b, illumination.w);
+                    }
+                } else { // Single  FIXME: use enums
+                    leds->setPixelColor(
+                        illumination.ledSingle, illumination.r, illumination.g, illumination.b, illumination.w
+                    );
                 }
-            } else { // Single
-                leds->setPixelColor(illumination.ledSingle, illumination.r, illumination.g, illumination.b, illumination.w);
+                leds->show();
             }
-            leds->show();
         }
 
     private:

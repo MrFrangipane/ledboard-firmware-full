@@ -41,6 +41,7 @@ namespace Frangitron {
 
         struct BoardConfigurationStruct {
             char name[8] = "       ";
+            int executionMode = 0;
             int hardwareRevision = 1;
             int firmwareRevision = 1;
             byte hardwareId[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
