@@ -9,7 +9,7 @@
 
 #include "SerialProtocol.h"
 #include "ILEDBoard.h"
-#include "divisions.h"
+#include "MappingTree.h"
 
 
 namespace Frangitron {
@@ -40,8 +40,6 @@ namespace Frangitron {
         memcpy(data.data(), board->getIllumination(), sizeof(SerialProtocol::IlluminationStruct));
     }
 
-    //
-    // ArtNet
     void receiveIllumination(void *vBoard, const std::vector<byte> &data) {
         SerialProtocol::IlluminationStruct illumination;
         memcpy(&illumination, data.data(), data.size());
@@ -50,21 +48,38 @@ namespace Frangitron {
         board->setIllumination(&illumination);
     }
 
+    //
+    // Mapping Tree
+    void receiveMappingTreeStructure(void *vBoard, const std::vector<byte> &data) {
+        SerialProtocol::MappingTreeStructureStruct mappingTreeStructure;
+        memcpy(&mappingTreeStructure, data.data(), data.size());
 
-    void receiveArtNet(int *fpsCounter, Adafruit_NeoPXL8 *leds, const SerialProtocol::BoardConfigurationStruct &settings, const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
-        if (metadata.universe != settings.universe) {
-            return;
-        }
+        auto board = static_cast<ILEDBoard*>(vBoard);
+        board->setMappingTreeStructure(&mappingTreeStructure);
+    }
 
-        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-        const int artnetPixelCount = 128;  // max RGBW pixels per universe FIXME: set universe(s) and this in settings
+    void receiveMappingTreeLeaf(void *vBoard, const std::vector<byte> &data) {
+        SerialProtocol::MappingTreeLeafStruct mappingTreeLeaf;
+        memcpy(&mappingTreeLeaf, data.data(), data.size());
 
-        for (int p = 0; p < artnetPixelCount; p++) {
-            for (int l = 0; l < divisions[p].size(); l++) {
-                leds->setPixelColor(
-                    divisions[p][l],
-                    Adafruit_NeoPXL8::Color(data[p * 3], data[p * 3 + 1], data[p * 3 + 2])
-                );
+        auto board = static_cast<ILEDBoard*>(vBoard);
+        board->updateMappingTree(&mappingTreeLeaf);
+    }
+
+    //
+    // ArtNet
+    void receiveArtNet(int *fpsCounter, const MappingTree &mappingTree, Adafruit_NeoPXL8 *leds, const SerialProtocol::BoardConfigurationStruct &settings, const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+        if (metadata.universe == settings.universeA) {
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+            fpsCounter[0]++;
+
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTree.universeA[p].size(); l++) {
+                    leds->setPixelColor(
+                        mappingTree.universeA[p][l],
+                        Adafruit_NeoPXL8::Color(data[p * 3], data[p * 3 + 1], data[p * 3 + 2])
+                    );
+                }
             }
         }
     }

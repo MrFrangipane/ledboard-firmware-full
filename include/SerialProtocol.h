@@ -36,18 +36,23 @@ namespace Frangitron {
 
         enum DataTypeCode : int {
             BoardConfigurationStructCode,
-            IlluminationStructCode
+            IlluminationStructCode,
+            MappingTreeLeafStructCode,
+            MappingTreeStructureStructCode
         };
 
         struct BoardConfigurationStruct {
             char name[8] = "       ";
             int executionMode = 0;
-            int hardwareRevision = 1;
             int firmwareRevision = 1;
             byte hardwareId[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            int hardwareRevision = 1;
             byte ipAddress[4] = {0x00, 0x00, 0x00, 0x00};
-            int universe = -1;
-            int pixelPerTransmitter = 150;
+            int universeA = -1;
+            int universeB = -1;
+            int universeC = -1;
+            int ledPerTransmitter = 250;
+            int pixelPerUniverse = 128;
             int pixelType = 0;
             int doSaveAndReboot = 0;
             int doRebootBootloader = 0;
@@ -63,13 +68,28 @@ namespace Frangitron {
             int b = 0;
             int w = 0;
         };
+        
+        struct MappingTreeLeafStruct {
+            int ledId = 0;
+            int mappingId = 0;
+            int pixelNumber = 0;
+            int universeNumber = 0;
+        };
+        
+        struct MappingTreeStructureStruct {
+            int universeAPixelsLedCount[128] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            int universeBPixelsLedCount[128] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            int universeCPixelsLedCount[128] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        };
 
         static const std::map<DataTypeCode, uint16_t> DataSize;
     };
 
     const std::map<SerialProtocol::DataTypeCode, uint16_t> SerialProtocol::DataSize = {
         {SerialProtocol::DataTypeCode::BoardConfigurationStructCode, sizeof(SerialProtocol::BoardConfigurationStruct)},
-        {SerialProtocol::DataTypeCode::IlluminationStructCode, sizeof(SerialProtocol::IlluminationStruct)}
+        {SerialProtocol::DataTypeCode::IlluminationStructCode, sizeof(SerialProtocol::IlluminationStruct)},
+        {SerialProtocol::DataTypeCode::MappingTreeLeafStructCode, sizeof(SerialProtocol::MappingTreeLeafStruct)},
+        {SerialProtocol::DataTypeCode::MappingTreeStructureStructCode, sizeof(SerialProtocol::MappingTreeStructureStruct)}
     };
 }
 

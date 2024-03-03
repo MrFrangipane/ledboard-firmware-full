@@ -19,8 +19,15 @@ namespace Frangitron {
         virtual const void* getSettings() = 0;
         virtual void setSettings(const void* settings1) = 0;
 
+        virtual void setMappingTreeStructure(const void* mappingTreeStructure1) = 0;
+        virtual void updateMappingTree(const void* mappingTreeLeaf1) = 0;
+
         virtual void loadSettings() = 0;
         virtual void saveSettings() = 0;
+
+        virtual void resetMappingTree() = 0;
+        virtual void loadMappingTree() = 0;
+        virtual void saveMappingTree() = 0;
     };
 
 }
