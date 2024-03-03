@@ -69,6 +69,7 @@ namespace Frangitron {
     //
     // ArtNet
     void receiveArtNet(int *fpsCounter, const MappingTree &mappingTree, Adafruit_NeoPXL8 *leds, const SerialProtocol::BoardConfigurationStruct &settings, const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+        // Universe A
         if (metadata.universe == settings.universeA) {
             digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
             fpsCounter[0]++;
@@ -78,6 +79,36 @@ namespace Frangitron {
                     leds->setPixelColor(
                         mappingTree.universeA[p][l],
                         Adafruit_NeoPXL8::Color(data[p * 3], data[p * 3 + 1], data[p * 3 + 2])
+                    );
+                }
+            }
+        }
+
+        // Universe B
+        if (metadata.universe == settings.universeB) {
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+            fpsCounter[1]++;
+
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTree.universeB[p].size(); l++) {
+                    leds->setPixelColor(
+                            mappingTree.universeB[p][l],
+                            Adafruit_NeoPXL8::Color(data[p * 3], data[p * 3 + 1], data[p * 3 + 2])
+                    );
+                }
+            }
+        }
+
+        // Universe C
+        if (metadata.universe == settings.universeC) {
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+            fpsCounter[2]++;
+
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTree.universeC[p].size(); l++) {
+                    leds->setPixelColor(
+                            mappingTree.universeC[p][l],
+                            Adafruit_NeoPXL8::Color(data[p * 3], data[p * 3 + 1], data[p * 3 + 2])
                     );
                 }
             }

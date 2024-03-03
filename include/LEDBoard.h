@@ -104,6 +104,9 @@ namespace Frangitron {
             display.setContrast(0);
             display.clear();
 
+            // MAPPING TREE
+            loadMappingTree();
+
             ready = true;
         }
 
@@ -130,10 +133,17 @@ namespace Frangitron {
                 }
             }
 
-            displayWrite(0, 0, Ethernet.localIP().toString() + "    ");
-            displayWrite(1, 0, String(fps[0]) + " ");
-            displayWrite(1, 6, String(fps[1]) + " ");
-            displayWrite(1, 11, String(fps[2]) + " ");
+            displayWrite(0, 0, Ethernet.localIP().toString() + "  ");
+            displayWrite(1, 0, String(fps[0], 1) + " ");
+            displayWrite(1, 6, String(fps[1], 1) + " ");
+            displayWrite(1, 12, String(fps[2], 1) + " ");
+
+            // Illumination / Arnet
+            if (settings.executionMode == 0) {
+                displayWrite(0, 15, "I");
+            } else {
+                displayWrite(0, 15, "A");
+            }
         }
 
         void displayWrite(uint8_t row, uint8_t column, String text) override {
@@ -184,6 +194,9 @@ namespace Frangitron {
             File f = LittleFS.open("settings.bin", "w");
             f.write(reinterpret_cast<char*>(&settings), sizeof(settings));
             f.close();
+
+            // FIXME: hacky
+            saveMappingTree();
         }
 
         //
@@ -199,6 +212,14 @@ namespace Frangitron {
 
             if (leaf.universeNumber == 0) {
                 mappingTree.universeA[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
+            }
+
+            if (leaf.universeNumber == 1) {
+                mappingTree.universeB[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
+            }
+
+            if (leaf.universeNumber == 2) {
+                mappingTree.universeC[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
             }
         }
 
@@ -217,65 +238,90 @@ namespace Frangitron {
             for (int p = 0; p < settings.pixelPerUniverse; p++) {
                 mappingTree.universeB[p].clear();
                 mappingTree.universeB[p].reserve(mappingTreeStructure.universeBPixelsLedCount[p]);
+                for (int l = 0; l < mappingTreeStructure.universeBPixelsLedCount[p]; l++) {
+                    mappingTree.universeB[p][l] = ledId;
+                    ledId++;
+                }
             }
 
             for (int p = 0; p < settings.pixelPerUniverse; p++) {
                 mappingTree.universeC[p].clear();
                 mappingTree.universeC[p].reserve(mappingTreeStructure.universeCPixelsLedCount[p]);
+                for (int l = 0; l < mappingTreeStructure.universeCPixelsLedCount[p]; l++) {
+                    mappingTree.universeC[p][l] = ledId;
+                    ledId++;
+                }
             }
         }
 
         void loadMappingTree() override {
-            /*
-            clearMappingTree();
             if (!LittleFS.exists("ledtree.bin")) {
                 return;
             }
 
-            int universe_id = 0;
-            int pixel_id = 0;
-
             File f = LittleFS.open("ledtree.bin", "r");
-            while (f.available()) {
-                int readValue = f.parseInt();
-                if (readValue == SEP_UNV) {
-                    pixel_id = 0;
-                    universe_id++;
-                    std::vector<int> pixel0;
-                    ledTree[universe_id].push_back(pixel0);
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                mappingTreeStructure.universeAPixelsLedCount[p] = f.parseInt();
+                mappingTreeStructure.universeBPixelsLedCount[p] = f.parseInt();
+                mappingTreeStructure.universeCPixelsLedCount[p] = f.parseInt();
+            }
+
+            resetMappingTree();
+
+            // Universe A
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeAPixelsLedCount[p]; l++) {
+                    mappingTree.universeA[p][l] = f.parseInt();
                 }
-                else if (readValue == SEP_PIX) {
-                    pixel_id++;
-                    std::vector<int> pixel;
-                    ledTree[universe_id].push_back(pixel);
+            }
+
+            // Universe B
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeBPixelsLedCount[p]; l++) {
+                    mappingTree.universeB[p][l] = f.parseInt();
                 }
-                else {
-                    ledTree[universe_id][pixel_id].push_back(readValue);
+            }
+
+            // Universe C
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeCPixelsLedCount[p]; l++) {
+                    mappingTree.universeC[p][l] = f.parseInt();
                 }
             }
             f.close();
-             */
         }
 
         void saveMappingTree() override {
-            /*
             File f = LittleFS.open("ledtree.bin", "w");
 
-            for (int universe_id = 0; universe_id < ledTree.size(); universe_id ++) {
-                for (int pixel_id = 0; pixel_id < ledTree[universe_id].size(); pixel_id++) {
-                    for (int led_id = 0; led_id < ledTree[universe_id][pixel_id].size(); led_id++) {
-                        f.print(ledTree[universe_id][pixel_id][led_id]);
-                        f.print(" ");
-                    }
-                    f.print(SEP_PIX);
-                    f.print(" ");
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                f.print(mappingTreeStructure.universeAPixelsLedCount[p]); f.print(" ");
+                f.print(mappingTreeStructure.universeBPixelsLedCount[p]); f.print(" ");
+                f.print(mappingTreeStructure.universeCPixelsLedCount[p]); f.print(" ");
+            }
+
+            // Universe A
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeAPixelsLedCount[p]; l++) {
+                    f.print(mappingTree.universeA[p][l]); f.print(" ");
                 }
-                f.print(SEP_UNV);
-                f.print(" ");
+            }
+
+            // Universe B
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeBPixelsLedCount[p]; l++) {
+                    f.print(mappingTree.universeB[p][l]); f.print(" ");
+                }
+            }
+
+            // Universe C
+            for (int p = 0; p < settings.pixelPerUniverse; p++) {
+                for (int l = 0; l < mappingTreeStructure.universeCPixelsLedCount[p]; l++) {
+                    f.print(mappingTree.universeC[p][l]); f.print(" ");
+                }
             }
 
             f.close();
-            */
         }
 
         //
@@ -333,6 +379,8 @@ namespace Frangitron {
             settings.hardwareId[5] = boardId.id[5];
             settings.hardwareId[6] = boardId.id[6];
             settings.hardwareId[7] = boardId.id[7];
+
+            settings.pixelPerUniverse = 128;
         }
 
         void initLeds() {
