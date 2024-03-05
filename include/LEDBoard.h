@@ -237,7 +237,7 @@ namespace Frangitron {
 
             for (int p = 0; p < settings.pixelPerUniverse; p++) {
                 mappingTree.universeB[p].clear();
-                mappingTree.universeB[p].reserve(mappingTreeStructure.universeBPixelsLedCount[p]);
+                mappingTree.universeB[p].resize(mappingTreeStructure.universeBPixelsLedCount[p]);
                 for (int l = 0; l < mappingTreeStructure.universeBPixelsLedCount[p]; l++) {
                     mappingTree.universeB[p][l] = ledId;
                     ledId++;
@@ -246,7 +246,7 @@ namespace Frangitron {
 
             for (int p = 0; p < settings.pixelPerUniverse; p++) {
                 mappingTree.universeC[p].clear();
-                mappingTree.universeC[p].reserve(mappingTreeStructure.universeCPixelsLedCount[p]);
+                mappingTree.universeC[p].resize(mappingTreeStructure.universeCPixelsLedCount[p]);
                 for (int l = 0; l < mappingTreeStructure.universeCPixelsLedCount[p]; l++) {
                     mappingTree.universeC[p][l] = ledId;
                     ledId++;
