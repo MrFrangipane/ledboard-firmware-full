@@ -23,11 +23,6 @@
 */
 
 
-// FIXME: ugly
-#define SEP_UNV (-1)
-#define SEP_PIX (-2)
-
-
 namespace Frangitron {
 
     class LEDBoard : public ILEDBoard {
@@ -116,6 +111,7 @@ namespace Frangitron {
             else { // ArtNet  FIXME: use enums
                 artnetReceiver.parse();
                 leds->show();
+                delay(5);
             }
         }
 
@@ -153,12 +149,17 @@ namespace Frangitron {
         //
         // Settings
         const void* getSettings() override {
-            displayWrite(1, 7, "> send    ");
             return reinterpret_cast<void*>(&settings);
         }
 
         void setSettings(const void* settings1) override {
             memcpy(&settings, settings1, sizeof(settings));
+
+            bool doSaveAndReboot = settings.doSaveAndReboot;
+
+            if (settings.eraseMappingTreeFile) {
+                LittleFS.remove("ledtree.bin");
+            }
 
             if (settings.doRebootBootloader) {
                 rp2040.rebootToBootloader();
@@ -166,12 +167,9 @@ namespace Frangitron {
 
             setFixedSettingsValues();
 
-            if (settings.doSaveAndReboot == 1) {
-                displayWrite(1, 7, "< save   ");
+            if (doSaveAndReboot == 1) {
                 saveSettings();
                 rp2040.reboot();
-            } else {
-                displayWrite(1, 7, "< no save");
             }
         }
 
@@ -210,15 +208,15 @@ namespace Frangitron {
             SerialProtocol::MappingTreeLeafStruct leaf;
             memcpy(&leaf, mappingTreeLeaf1, sizeof(leaf));
 
-            if (leaf.universeNumber == 0) {
+            if (leaf.universeNumber == settings.universeA) {
                 mappingTree.universeA[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
             }
 
-            if (leaf.universeNumber == 1) {
+            if (leaf.universeNumber == settings.universeB) {
                 mappingTree.universeB[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
             }
 
-            if (leaf.universeNumber == 2) {
+            if (leaf.universeNumber ==  settings.universeC) {
                 mappingTree.universeC[leaf.pixelNumber][leaf.mappingId] = leaf.ledId;
             }
         }
@@ -379,6 +377,10 @@ namespace Frangitron {
             settings.hardwareId[5] = boardId.id[5];
             settings.hardwareId[6] = boardId.id[6];
             settings.hardwareId[7] = boardId.id[7];
+
+            settings.eraseMappingTreeFile = false;
+            settings.doSaveAndReboot = false;
+            settings.doRebootBootloader = false;
 
             settings.pixelPerUniverse = 128;
         }

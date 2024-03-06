@@ -69,6 +69,7 @@ namespace Frangitron {
     //
     // ArtNet
     void receiveArtNet(int *fpsCounter, const MappingTree &mappingTree, Adafruit_NeoPXL8 *leds, const SerialProtocol::BoardConfigurationStruct &settings, const uint8_t *data, uint16_t size, const ArtDmxMetadata &metadata, const ArtNetRemoteInfo &remote) {
+
         // Universe A
         if (metadata.universe == settings.universeA) {
             digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
@@ -85,7 +86,7 @@ namespace Frangitron {
         }
 
         // Universe B
-        if (metadata.universe == settings.universeB) {
+        else if (metadata.universe == settings.universeB) {
             digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
             fpsCounter[1]++;
 
@@ -100,7 +101,7 @@ namespace Frangitron {
         }
 
         // Universe C
-        if (metadata.universe == settings.universeC) {
+        else if (metadata.universe == settings.universeC) {
             digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
             fpsCounter[2]++;
 

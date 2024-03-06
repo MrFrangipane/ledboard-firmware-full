@@ -54,6 +54,7 @@ namespace Frangitron {
             int ledPerTransmitter = 250;
             int pixelPerUniverse = 128;
             int pixelType = 0;
+            int eraseMappingTreeFile = 0;
             int doSaveAndReboot = 0;
             int doRebootBootloader = 0;
         };
